@@ -27,6 +27,7 @@ func main() {
 		v1.GET("/user/:id/:name", getUserFromRestful)
 		v1.GET("/user", getUserFromUrl)
 		v1.POST("/register", handleRegister)
+		v1.POST("/login", handleLogin)
 	}
 
 
@@ -82,6 +83,31 @@ func handleRegister(c *gin.Context) {
 		"username": username,
 		"email": email,
 		"password": password,
+		"token": "HJUSHodjuoi334rnkjsKSHNw35BHJWQ32",
+	})
+}
+
+// 登录接口
+type Login struct {
+	User string `from: "username" json: "user" binding: "required"`
+	Password string `from: "password" json: "password" binding: "required"`
+}
+func handleLogin(c *gin.Context) {
+	var json Login
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 验证登录信息
+	if json.User != "admin" || json.Password != "123456" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": json.User,
+		"password": json.Password,
 		"token": "HJUSHodjuoi334rnkjsKSHNw35BHJWQ32",
 	})
 }
