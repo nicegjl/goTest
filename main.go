@@ -88,12 +88,17 @@ func handleRegister(c *gin.Context) {
 }
 
 // 登录接口
-type Login struct {
+type LoginRequest struct {
 	User string `from: "username" json: "user" binding: "required"`
 	Password string `from: "password" json: "password" binding: "required"`
 }
+type LoginResponse struct {
+	User string `json:"user"`
+	Password string `json:"password"`
+	Token string `json:"token"`
+}
 func handleLogin(c *gin.Context) {
-	var json Login
+	var json LoginRequest
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -105,9 +110,11 @@ func handleLogin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"user": json.User,
-		"password": json.Password,
-		"token": "HJUSHodjuoi334rnkjsKSHNw35BHJWQ32",
-	})
+	// 结构体响应
+	var info LoginResponse
+	info.User = json.User
+	info.Password = json.Password
+	info.Token = "HJUSHodjuoi334rnkjsKSHNw35BHJWQ32"
+
+	c.JSON(http.StatusOK, info)
 }
