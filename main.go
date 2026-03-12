@@ -3,18 +3,26 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-type GetDataResponse struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
-	Data string `json:"data"`
+func MiddleWare() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		t1 := time.Now();
+		fmt.Println("--- 中间件开始执行 ---")
+		c.Set("request", "中间件")
+		code := c.Writer.Status();
+		fmt.Println("--- 中间件执行完毕 ---", code)
+		t2 := time.Since(t1);
+		fmt.Println("Use Time:", t2)
+	}
 }
 
 func main() {
 	r := gin.Default()
+	r.Use(MiddleWare())
 
 	r.LoadHTMLFiles("template/index.html")
 	r.GET("/", func(c *gin.Context) {
@@ -36,7 +44,11 @@ func main() {
 	r.Run(":8080")
 }
 
-
+type GetDataResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+	Data string `json:"data"`
+}
 func getData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Hello, World!"})
 
@@ -72,6 +84,9 @@ func handleRegister(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	req, _ := c.Get("request");
+	fmt.Println("Middle Data: ", req)
 
 	username := user.Username
 	email := user.Email
